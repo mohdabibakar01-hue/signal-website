@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signal Pro | Crypto Signals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <div class="brand">
+          <span class="brand-mark">S</span>
+          <span>Signal Pro</span>
+        </div>
+        <nav class="menu">
+          <a href="#signals">Signals</a>
+          <a href="#plans">Plans</a>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#chat">Chat</a>
+        </nav>
+        <button class="btn btn-primary" id="subscribeBtn">Get Signal</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div class="hero-copy">
+            <p class="eyebrow">Trade smarter with confidence</p>
+            <h1>Live crypto signals for BINANCE and Forex traders.</h1>
+            <p class="lead">
+              Get precise entries, stop loss zones, take profits, and VIP support in a single dashboard.
+            </p>
+            <div class="cta-row">
+              <button class="btn btn-primary" id="heroSubscribe">Subscribe Now</button>
+              <button class="btn btn-secondary" id="viewSignals">View Signals</button>
+            </div>
+            <ul class="feature-list">
+              <li>✅ High-probability trading ideas</li>
+              <li>✅ Daily market analysis</li>
+              <li>✅ Real-time support chat</li>
+            </ul>
+          </div>
+          <div class="hero-card">
+            <div class="market-box">
+              <div class="market-top">
+                <span>BTC/USDT</span>
+                <span class="status-pill">BUY</span>
+              </div>
+              <div class="market-price">$64,800</div>
+              <div class="profit-row">
+                <span>Target</span>
+                <strong>$67,200</strong>
+              </div>
+              <div class="profit-row">
+                <span>Stop</span>
+                <strong>$63,700</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="signals" id="signals">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Latest signals</p>
+              <h2>Fresh trading opportunities</h2>
+            </div>
+            <button class="btn btn-secondary" id="openAdminPanel">Admin Panel</button>
+          </div>
+          <div id="signalsList" class="signals-grid"></div>
+        </div>
+      </section>
+
+      <section class="plans" id="plans">
+        <div class="container">
+          <div class="section-head center">
+            <p class="eyebrow">Membership</p>
+            <h2>Simple pricing for every trader</h2>
+          </div>
+          <div class="plans-grid">
+            <div class="plan-card">
+              <h3>Starter</h3>
+              <div class="price">$29<span>/mo</span></div>
+              <ul>
+                <li>Daily signals</li>
+                <li>Basic dashboard</li>
+                <li>Email updates</li>
+              </ul>
+              <button class="btn btn-secondary plan-btn" data-plan="Starter">Choose Plan</button>
+            </div>
+            <div class="plan-card featured">
+              <div class="popular">Most Popular</div>
+              <h3>Pro</h3>
+              <div class="price">$79<span>/mo</span></div>
+              <ul>
+                <li>All Starter features</li>
+                <li>Priority signals</li>
+                <li>VIP chat access</li>
+              </ul>
+              <button class="btn btn-primary plan-btn" data-plan="Pro">Choose Plan</button>
+            </div>
+            <div class="plan-card">
+              <h3>VIP</h3>
+              <div class="price">$149<span>/mo</span></div>
+              <ul>
+                <li>Everything in Pro</li>
+                <li>1:1 coaching</li>
+                <li>Private community</li>
+              </ul>
+              <button class="btn btn-secondary plan-btn" data-plan="VIP">Choose Plan</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dashboard" id="dashboard">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Member area</p>
+              <h2>User dashboard</h2>
+            </div>
+          </div>
+          <div class="dashboard-grid">
+            <div class="dashboard-panel">
+              <h3>Portfolio summary</h3>
+              <div class="stat-row">
+                <span>Active signals</span>
+                <strong>08</strong>
+              </div>
+              <div class="stat-row">
+                <span>Win rate</span>
+                <strong>82%</strong>
+              </div>
+              <div class="stat-row">
+                <span>Monthly ROI</span>
+                <strong>+21.4%</strong>
+              </div>
+            </div>
+            <div class="dashboard-panel">
+              <h3>Recent trades</h3>
+              <ul class="trade-list">
+                <li><span>BTC/USDT</span><strong>+3.7%</strong></li>
+                <li><span>ETH/USDT</span><strong>+2.1%</strong></li>
+                <li><span>BNB/USDT</span><strong>+4.3%</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="chat-section" id="chat">
+        <div class="container chat-shell">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Community</p>
+              <h2>Signal chat room</h2>
+            </div>
+          </div>
+          <div class="chat-box" id="chatBox"></div>
+          <form id="chatForm" class="chat-form">
+            <input id="chatName" type="text" placeholder="Your name" value="User" />
+            <input id="chatInput" type="text" placeholder="Type your message..." />
+            <button class="btn btn-primary" type="submit">Send</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <aside class="modal hidden" id="subscribeModal">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h3>Join Signal Pro</h3>
+          <button class="close-btn" id="closeModal">×</button>
+        </div>
+        <form id="subscribeForm">
+          <label>
+            Full name
+            <input type="text" id="name" required />
+          </label>
+          <label>
+            Email
+            <input type="email" id="email" required />
+          </label>
+          <label>
+            Select plan
+            <select id="plan">
+              <option value="Starter">Starter</option>
+              <option value="Pro" selected>Pro</option>
+              <option value="VIP">VIP</option>
+            </select>
+          </label>
+          <button class="btn btn-primary" type="submit">Subscribe</button>
+        </form>
+      </div>
+    </aside>
+
+    <aside class="admin-panel hidden" id="adminPanel">
+      <div class="admin-card">
+        <div class="modal-head">
+          <h3>Admin Panel</h3>
+          <button class="close-btn" id="closeAdminPanel">×</button>
+        </div>
+
+        <form id="signalForm" class="admin-form">
+          <label>
+            Pair
+            <input type="text" id="pair" placeholder="BTC/USDT" required />
+          </label>
+          <label>
+            Direction
+            <select id="side">
+              <option value="BUY">BUY</option>
+              <option value="SELL">SELL</option>
+            </select>
+          </label>
+          <label>
+            Entry
+            <input type="text" id="entry" placeholder="64,800" required />
+          </label>
+          <label>
+            Target
+            <input type="text" id="target" placeholder="67,200" required />
+          </label>
+          <label>
+            Stop
+            <input type="text" id="stop" placeholder="63,700" required />
+          </label>
+          <button class="btn btn-primary" type="submit">Create Signal</button>
+        </form>
+
+        <div class="admin-stats">
+          <h4>Subscribers</h4>
+          <div id="subscriberList" class="subscriber-list"></div>
+        </div>
+      </div>
+    </aside>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
