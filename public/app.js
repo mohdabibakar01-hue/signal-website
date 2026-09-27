@@ -1,542 +1,164 @@
-* { box-sizing: border-box; }
+const BASE_URL = window.location.origin;
+
+const signalsList = document.getElementById('signalsList');
+const chatBox = document.getElementById('chatBox');
+const chatForm = document.getElementById('chatForm');
+const signalForm = document.getElementById('signalForm');
+const subscribeForm = document.getElementById('subscribeForm');
+const subscriberList = document.getElementById('subscriberList');
+
+const subscribeModal = document.getElementById('subscribeModal');
+const adminPanel = document.getElementById('adminPanel');
+
+async function loadSignals() {
+  const response = await fetch(`${BASE_URL}/api/signals`);
+  const signals = await response.json();
+
+  signalsList.innerHTML = signals.map((signal) => `
+    <article class="signal-card">
+      <div class="card-top">
+        <div class="symbol">${signal.pair}</div>
+        <span class="direction ${signal.side.toLowerCase()}">${signal.side}</span>
+      </div>
+      <div class="signal-grid">
+        <div>
+          Entry
+          <strong>${signal.entry}</strong>
+        </div>
+        <div>
+          Target
+          <strong>${signal.target}</strong>
+        </div>
+        <div>
+          Stop
+          <strong>${signal.stop}</strong>
+        </div>
+        <div>
+          Confidence
+          <strong>${signal.confidence}</strong>
+        </div>
+      </div>
+      <p style="margin-top:16px; color:#a3b0d1;">Status: ${signal.status}</p>
+    </article>
+  `).join('');
+}
+
+async function loadChat() {
+  const response = await fetch(`${BASE_URL}/api/chat`);
+  const messages = await response.json();
+
+  chatBox.innerHTML = messages.map((msg) => `
+    <div class="chat-message ${msg.sender === 'User' ? 'user' : ''}">
+      <small>${msg.sender} • ${msg.time}</small>
+      <div>${msg.message}</div>
+    </div>
+  `).join('');
+
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function loadSubscribers() {
+  const response = await fetch(`${BASE_URL}/api/subscribers`);
+  const subscribers = await response.json();
+
+  subscriberList.innerHTML = subscribers.map((user) => `
+    <div class="subscriber-item">
+      <div>
+        <strong>${user.name}</strong><br>
+        <small>${user.email}</small>
+      </div>
+      <span>${user.plan}</span>
+    </div>
+  `).join('');
+}
+
+async function createSignal(event) {
+  event.preventDefault();
+
+  const payload = {
+    pair: document.getElementById('pair').value,
+    side: document.getElementById('side').value,
+    entry: document.getElementById('entry').value,
+    target: document.getElementById('target').value,
+    stop: document.getElementById('stop').value,
+    status: 'Active',
+    confidence: '90%'
+  };
+
+  await fetch(`${BASE_URL}/api/signals`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  signalForm.reset();
+  adminPanel.classList.add('hidden');
+  loadSignals();
+}
+
+async function subscribe(event) {
+  event.preventDefault();
+
+  const payload = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    plan: document.getElementById('plan').value
+  };
 
-:root {
-  --bg: #0b1020;
-  --bg-soft: #111827;
-  --panel: #141d32;
-  --card: #1b243a;
-  --card-2: #0f172a;
-  --primary: #4f8cff;
-  --primary-2: #7c3aed;
-  --success: #22c55e;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --text: #edf2ff;
-  --muted: #a3b0d1;
-  --border: rgba(255, 255, 255, 0.08);
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: linear-gradient(180deg, #070d1d 0%, #111827 100%);
-  color: var(--text);
-}
-
-img {
-  max-width: 100%;
-  display: block;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-.container {
-  width: min(1180px, calc(100% - 32px));
-  margin: 0 auto;
-}
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(16px);
-  background: rgba(8, 12, 20, 0.8);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18px 0;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-}
-
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  color: white;
-}
-
-.menu {
-  display: flex;
-  gap: 28px;
-  color: var(--muted);
-}
-
-.btn {
-  border: none;
-  cursor: pointer;
-  border-radius: 12px;
-  padding: 12px 18px;
-  font-weight: 600;
-  transition: 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-2));
-  color: white;
-  box-shadow: 0 12px 30px rgba(91, 101, 255, 0.35);
-}
-
-.btn-secondary {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  color: var(--text);
-}
-
-.hero {
-  padding: 72px 0 40px;
-}
-
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 28px;
-  align-items: center;
-}
-
-.eyebrow {
-  margin: 0 0 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: #7cc2ff;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.hero-copy h1 {
-  font-size: clamp(2.4rem, 4vw, 4.5rem);
-  line-height: 1.03;
-  margin: 0;
-  letter-spacing: -0.05em;
-}
-
-.lead {
-  color: var(--muted);
-  font-size: 1.05rem;
-  line-height: 1.7;
-  max-width: 620px;
-  margin: 22px 0;
-}
-
-.cta-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.feature-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 12px;
-  color: var(--muted);
-}
-
-.hero-card {
-  background: linear-gradient(160deg, rgba(79, 140, 255, 0.15), rgba(124, 58, 237, 0.14));
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 26px;
-  min-height: 360px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.market-box {
-  width: min(100%, 360px);
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  padding: 22px;
-}
-
-.market-top,
-.profit-row,
-.stat-row,
-.trade-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.status-pill {
-  background: rgba(34, 197, 94, 0.15);
-  color: var(--success);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.market-price {
-  font-size: clamp(2rem, 3vw, 3rem);
-  margin: 22px 0 18px;
-  font-weight: 800;
-}
-
-.profit-row {
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-}
-
-.section-head {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.section-head.center {
-  justify-content: center;
-  text-align: center;
-}
-
-.section-head h2 {
-  margin: 0;
-  font-size: clamp(1.7rem, 3vw, 2.7rem);
-}
-
-.signals,
-.plans,
-.dashboard,
-.chat-section {
-  padding: 40px 0 30px;
-}
-
-.signals-grid,
-.plans-grid,
-.dashboard-grid {
-  display: grid;
-  gap: 20px;
-}
-
-.signals-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.signal-card,
-.plan-card,
-.dashboard-panel,
-.chat-box {
-  background: rgba(17, 24, 39, 0.85);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
-}
+  await fetch(`${BASE_URL}/api/subscribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
 
-.signal-card {
-  padding: 20px;
+  subscribeForm.reset();
+  subscribeModal.classList.add('hidden');
+  loadSubscribers();
 }
 
-.card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.symbol {
-  font-size: 1.2rem;
-  font-weight: 800;
-}
-
-.direction {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.direction.buy {
-  background: rgba(34, 197, 94, 0.15);
-  color: var(--success);
-}
-
-.direction.sell {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--danger);
-}
-
-.signal-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.signal-grid strong {
-  display: block;
-  color: var(--text);
-  margin-top: 4px;
-}
-
-.plans-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-}
-
-.plan-card {
-  padding: 24px 20px;
-  position: relative;
-}
-
-.plan-card.featured {
-  border-color: rgba(127, 86, 255, 0.9);
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.12), rgba(17, 24, 39, 0.9));
-}
-
-.popular {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #d7c8ff;
-  background: rgba(124, 58, 237, 0.18);
-  padding: 6px 8px;
-  border-radius: 999px;
-}
-
-.plan-card h3 {
-  margin-top: 0;
-  font-size: 1.5rem;
-}
-
-.price {
-  font-size: 2.4rem;
-  font-weight: 800;
-  margin: 10px 0 18px;
-}
-
-.price span {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.plan-card ul {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 18px;
-  display: grid;
-  gap: 10px;
-  color: var(--muted);
-}
-
-.dashboard-grid {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-}
-
-.dashboard-panel {
-  padding: 22px;
-}
-
-.dashboard-panel h3 {
-  margin-top: 0;
-}
+async function sendChat(event) {
+  event.preventDefault();
 
-.stat-row {
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-}
-
-.trade-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.trade-list li {
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-  color: var(--muted);
-}
-
-.chat-shell {
-  max-width: 900px;
-}
-
-.chat-box {
-  padding: 18px;
-  min-height: 260px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.chat-message {
-  max-width: 75%;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border);
-  padding: 12px 14px;
-  border-radius: 14px;
-}
-
-.chat-message.user {
-  align-self: flex-end;
-  background: rgba(79, 140, 255, 0.15);
-}
-
-.chat-message small {
-  color: var(--muted);
-  display: block;
-  margin-bottom: 5px;
-}
-
-.chat-form {
-  margin-top: 16px;
-  display: grid;
-  grid-template-columns: 170px 1fr auto;
-  gap: 12px;
-}
-
-.chat-form input,
-#subscribeForm input,
-#subscribeForm select,
-.admin-form input,
-.admin-form select {
-  width: 100%;
-  border: 1px solid var(--border);
-  background: rgba(15, 23, 42, 0.75);
-  color: var(--text);
-  border-radius: 12px;
-  padding: 12px 14px;
-}
-
-.modal,
-.admin-panel {
-  position: fixed;
-  inset: 0;
-  background: rgba(5, 8, 15, 0.72);
-  display: grid;
-  place-items: center;
-  z-index: 50;
-}
-
-.hidden {
-  display: none;
-}
-
-.modal-card,
-.admin-card {
-  width: min(540px, calc(100% - 32px));
-  background: #0f172a;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 22px;
-}
-
-.modal-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 18px;
-}
+  const sender = document.getElementById('chatName').value || 'User';
+  const message = document.getElementById('chatInput').value.trim();
 
-.modal-head h3 {
-  margin: 0;
-}
-
-.close-btn {
-  border: none;
-  background: rgba(255,255,255,0.05);
-  color: white;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 1.4rem;
-}
+  if (!message) return;
 
-#subscribeForm,
-.admin-form {
-  display: grid;
-  gap: 16px;
-}
+  await fetch(`${BASE_URL}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sender, message })
+  });
 
-#subscribeForm label,
-.admin-form label {
-  display: grid;
-  gap: 8px;
-  color: var(--muted);
+  document.getElementById('chatInput').value = '';
+  loadChat();
 }
 
-.admin-panel .admin-card {
-  width: min(700px, calc(100% - 28px));
+function openSubscribeModal(plan = 'Pro') {
+  document.getElementById('plan').value = plan;
+  subscribeModal.classList.remove('hidden');
 }
 
-.admin-stats {
-  margin-top: 26px;
-}
+function initEvents() {
+  document.getElementById('subscribeBtn').addEventListener('click', () => openSubscribeModal());
+  document.getElementById('heroSubscribe').addEventListener('click', () => openSubscribeModal('Pro'));
+  document.getElementById('viewSignals').addEventListener('click', () => {
+    document.getElementById('signals').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('closeModal').addEventListener('click', () => subscribeModal.classList.add('hidden'));
+  document.getElementById('openAdminPanel').addEventListener('click', () => adminPanel.classList.remove('hidden'));
+  document.getElementById('closeAdminPanel').addEventListener('click', () => adminPanel.classList.add('hidden'));
 
-.subscriber-list {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-}
+  document.querySelectorAll('.plan-btn').forEach((btn) => {
+    btn.addEventListener('click', () => openSubscribeModal(btn.dataset.plan));
+  });
 
-.subscriber-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
+  subscribeForm.addEventListener('submit', subscribe);
+  signalForm.addEventListener('submit', createSignal);
+  chatForm.addEventListener('submit', sendChat);
 }
 
-@media (max-width: 820px) {
-  .hero-grid,
-  .chat-form {
-    grid-template-columns: 1fr;
-  }
-
-  .menu {
-    display: none;
-  }
-
-  .cta-row {
-    flex-direction: column;
-  }
-}
+initEvents();
+loadSignals();
+loadChat();
+loadSubscribers();
